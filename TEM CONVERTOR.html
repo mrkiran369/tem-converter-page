@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temperature Converter</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      min-height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.5s ease;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      top: -250px;
+      right: -250px;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .container::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      bottom: -200px;
+      left: -200px;
+      animation: float 15s infinite ease-in-out reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, 30px) scale(1.1); }
+    }
+
+    .converter-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25), 0 10px 30px rgba(0, 0, 0, 0.15);
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: #2d3748;
+      margin: 0 0 0.75rem 0;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size 17px;;
+      color: #6a9fee;
+      margin: 0;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .student-info {
+      font-size: 12px;
+      color: #4a5568;
+      margin: 0.75rem 0 0 0;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .temperature-input {
+      width: 100%;
+      padding: 1.25rem 3.5rem 1.25rem 1.25rem;
+      font-size: 1.125rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
+      background: #f8fafc;
+      font-weight: 500;
+    }
+
+    .temperature-input:hover {
+      border-color: #cbd5e0;
+      background: #ffffff;
+    }
+
+    .temperature-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+      background: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .unit-badge {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.375rem 0.875rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      letter-spacing: 0.5px;
+    }
+
+    .icon {
+      text-align: center;
+      font-size: 1.75rem;
+      margin: 1.25rem 0;
+      color: #667eea;
+      opacity: 0.6;
+      font-weight: 300;
+    }
+
+    .select-wrapper {
+      position: relative;
+    }
+
+    .unit-select {
+      width: 100%;
+      padding: 1.25rem 1.25rem;
+      font-size: 1.125rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
+      background: #f8fafc;
+      font-weight: 500;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 20px;
+      padding-right: 3rem;
+    }
+
+    .unit-select:hover {
+      border-color: #cbd5e0;
+      background-color: #ffffff;
+    }
+
+    .unit-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+      background-color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .conversion-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group-half {
+      flex: 1;
+    }
+
+    .arrow-icon {
+      font-size: 1.5rem;
+      color: #667eea;
+      font-weight: 600;
+      padding-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .result-section {
+      margin-top: 1.5rem;
+    }
+
+    .result-card-large {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .result-card-large:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .result-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+    }
+
+    .result-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+
+
+    @media (max-width: 640px) {
+      .converter-card {
+        padding: 2rem;
+      }
+
+      .title {
+        font-size: 2rem;
+      }
+
+      .temperature-input, .unit-select {
+        font-size: 1rem;
+      }
+
+      .result-value {
+        font-size: 2rem;
+      }
+
+      .conversion-row {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .arrow-icon {
+        display: none;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="converter-card">
+    <div class="header">
+     <h1 class="title" id="main-title">Temperature Converter</h1>
+     <p class="subtitle" id="subtitle">Convert between Celsius, Fahrenheit, and Kelvin</p>
+     <p class="student-info" id="student-info"> <text-size>Name: KIRAN NAYAK | Roll No: BCA23-016 </text-size> </p>
+    </div>
+    <div class="input-group"><label for="temperature-input" class="input-label">Enter Temperature</label>
+     <div class="input-wrapper"><input type="number" id="temperature-input" class="temperature-input" placeholder="0" step="0.01">
+     </div>
+    </div>
+    <div class="icon">
+     ↓
+    </div>
+    <div class="conversion-row">
+     <div class="input-group-half"><label for="from-unit" class="input-label">From</label>
+      <div class="select-wrapper"><select id="from-unit" class="unit-select"> <option value="celsius">Celsius (°C)</option> <option value="fahrenheit">Fahrenheit (°F)</option> <option value="kelvin">Kelvin (K)</option> </select>
+      </div>
+     </div>
+     <div class="arrow-icon">
+      →
+     </div>
+     <div class="input-group-half"><label for="to-unit" class="input-label">To</label>
+      <div class="select-wrapper"><select id="to-unit" class="unit-select"> <option value="celsius">Celsius (°C)</option> <option value="fahrenheit" selected>Fahrenheit (°F)</option> <option value="kelvin">Kelvin (K)</option> </select>
+      </div>
+     </div>
+    </div>
+    <div class="result-section">
+     <div class="result-card-large">
+      <div class="result-label">
+       Result
+      </div>
+      <div class="result-value" id="conversion-result">
+       32 °F
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#667eea",
+      surface_color: "#ffffff",
+      text_color: "#2d3748",
+      primary_action_color: "#667eea",
+      secondary_text_color: "#718096",
+      font_family: "Segoe UI",
+      font_size: 16,
+      main_title: "Temperature Converter",
+      subtitle: "Convert between Celsius, Fahrenheit, and Kelvin",
+      student_info: "Name: KIRAN NAYAK | Roll No: BCA23-016",
+      celsius_label: "Celsius",
+      fahrenheit_label: "Fahrenheit",
+      kelvin_label: "Kelvin"
+    };
+
+    const temperatureInput = document.getElementById('temperature-input');
+    const fromUnit = document.getElementById('from-unit');
+    const toUnit = document.getElementById('to-unit');
+    const conversionResult = document.getElementById('conversion-result');
+
+    function roundToTwo(num) {
+      return Math.round(num * 100) / 100;
+    }
+
+    function getUnitSymbol(unit) {
+      const symbols = {
+        'celsius': '°C',
+        'fahrenheit': '°F',
+        'kelvin': 'K'
+      };
+      return symbols[unit];
+    }
+
+    function convertTemperature() {
+      const value = parseFloat(temperatureInput.value);
+      const from = fromUnit.value;
+      const to = toUnit.value;
+
+      if (isNaN(value)) {
+        conversionResult.textContent = `0 ${getUnitSymbol(to)}`;
+        return;
+      }
+
+      let celsius;
+
+      // Convert to Celsius first
+      if (from === 'celsius') {
+        celsius = value;
+      } else if (from === 'fahrenheit') {
+        celsius = (value - 32) * 5/9;
+      } else if (from === 'kelvin') {
+        celsius = value - 273.15;
+      }
+
+      // Convert from Celsius to target unit
+      let result;
+      if (to === 'celsius') {
+        result = celsius;
+      } else if (to === 'fahrenheit') {
+        result = (celsius * 9/5) + 32;
+      } else if (to === 'kelvin') {
+        result = celsius + 273.15;
+      }
+
+      conversionResult.textContent = `${roundToTwo(result)} ${getUnitSymbol(to)}`;
+    }
+
+    temperatureInput.addEventListener('input', convertTemperature);
+    fromUnit.addEventListener('change', convertTemperature);
+    toUnit.addEventListener('change', convertTemperature);
+
+
+
+    async function onConfigChange(config) {
+      const container = document.querySelector('.container');
+      const card = document.querySelector('.converter-card');
+      const resultCard = document.querySelector('.result-card-large');
+      const title = document.getElementById('main-title');
+      const subtitle = document.getElementById('subtitle');
+      const labels = document.querySelectorAll('.input-label');
+      const resultLabel = document.querySelector('.result-label');
+      const resultValue = document.querySelector('.result-value');
+      const input = document.getElementById('temperature-input');
+      const fromSelect = document.getElementById('from-unit');
+      const toSelect = document.getElementById('to-unit');
+      const icons = document.querySelectorAll('.icon');
+
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryTextColor = config.secondary_text_color || defaultConfig.secondary_text_color;
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const baseFontSize = config.font_size || defaultConfig.font_size;
+
+      container.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor}dd 100%)`;
+      card.style.backgroundColor = surfaceColor;
+      resultCard.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}dd 100%)`;
+      
+      title.textContent = config.main_title || defaultConfig.main_title;
+      title.style.color = textColor;
+      title.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      title.style.fontSize = `${baseFontSize * 2.5}px`;
+
+      const subtitleText = config.subtitle || defaultConfig.subtitle;
+      subtitle.innerHTML = subtitleText.replace(/Celsius|Fahrenheit|Kelvin/g, '<strong>$&</strong>');
+      subtitle.style.color = secondaryTextColor;
+      subtitle.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      subtitle.style.fontSize = `${baseFontSize}px`;
+
+      const studentInfo = document.getElementById('student-info');
+      studentInfo.textContent = config.student_info || defaultConfig.student_info;
+      studentInfo.style.color = textColor;
+      studentInfo.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      studentInfo.style.fontSize = `${baseFontSize * 0.9375}px`;
+
+      labels.forEach(label => {
+        label.style.color = textColor;
+        label.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+        label.style.fontSize = `${baseFontSize * 0.875}px`;
+      });
+
+      resultLabel.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      resultLabel.style.fontSize = `${baseFontSize * 0.875}px`;
+
+      resultValue.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      resultValue.style.fontSize = `${baseFontSize * 2.5}px`;
+
+      input.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      input.style.fontSize = `${baseFontSize * 1.125}px`;
+      input.style.color = textColor;
+
+      fromSelect.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      fromSelect.style.fontSize = `${baseFontSize * 1.125}px`;
+      fromSelect.style.color = textColor;
+
+      toSelect.style.fontFamily = `${fontFamily}, 'Segoe UI', sans-serif`;
+      toSelect.style.fontSize = `${baseFontSize * 1.125}px`;
+      toSelect.style.color = textColor;
+
+      icons.forEach(icon => {
+        icon.style.color = primaryColor;
+        icon.style.fontSize = `${baseFontSize * 2}px`;
+      });
+
+      const arrowIcon = document.querySelector('.arrow-icon');
+      if (arrowIcon) {
+        arrowIcon.style.color = primaryColor;
+        arrowIcon.style.fontSize = `${baseFontSize * 1.5}px`;
+      }
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              config.surface_color = value;
+              window.elementSdk.setConfig({ surface_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              config.primary_action_color = value;
+              window.elementSdk.setConfig({ primary_action_color: value });
+            }
+          },
+          {
+            get: () => config.secondary_text_color || defaultConfig.secondary_text_color,
+            set: (value) => {
+              config.secondary_text_color = value;
+              window.elementSdk.setConfig({ secondary_text_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["main_title", config.main_title || defaultConfig.main_title],
+        ["subtitle", config.subtitle || defaultConfig.subtitle],
+        ["student_info", config.student_info || defaultConfig.student_info],
+        ["celsius_label", config.celsius_label || defaultConfig.celsius_label],
+        ["fahrenheit_label", config.fahrenheit_label || defaultConfig.fahrenheit_label],
+        ["kelvin_label", config.kelvin_label || defaultConfig.kelvin_label]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99cb9413b1557ef8',t:'MTc2Mjg0MDkyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
